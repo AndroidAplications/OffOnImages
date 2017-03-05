@@ -1,14 +1,17 @@
 package androidaplications.pablolaiz.offonimages;
 
+import android.annotation.SuppressLint;
 import android.graphics.drawable.Drawable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -29,6 +32,13 @@ public class MainActivity extends AppCompatActivity {
 
     private float _x, _y;
 
+    private int xDelta;
+    private int yDelta;
+
+    private boolean updateCoord = true;
+    private int __x;
+    private int __y;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +49,10 @@ public class MainActivity extends AppCompatActivity {
         act_button = (Button) findViewById(R.id.act_button);
 
         mainLayout = (RelativeLayout) findViewById(R.id.activity_main);
+
+        image = (ImageView) findViewById(R.id.image_android);
+
+        image.setOnTouchListener(onTouchListener());
 
         des_button.setOnClickListener(
             new Button.OnClickListener(){
@@ -80,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
                             newImage.setScaleX(_imageInfos.get(i).get_XScale());
                             newImage.setScaleY(_imageInfos.get(i).get_YScale());
 
+                            newImage.setOnTouchListener(onTouchListener());
 
                             Log.i("act_button_"+i, String.valueOf(_imageInfos.get(i).get_x()));
                             Log.i("act_button_"+i, String.valueOf(_imageInfos.get(i).get_y()));
@@ -105,5 +120,72 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return imageViewsListAux;
+    }
+
+    private OnTouchListener onTouchListener() {
+        return new OnTouchListener() {
+
+            @SuppressLint("ClickableViewAccessibility")
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+
+                final int x = (int) event.getRawX();
+                final int y = (int) event.getRawY();
+                if (updateCoord){
+                    _x = x;
+                    _y = y;
+                    updateCoord = !updateCoord;
+                }
+                /*
+                Log.i("onTouchListener", "Coordinates: ");
+                Log.i("onTouchListener", "x: " + x);
+                Log.i("onTouchListener", "y: " + y);
+                */
+                switch (event.getAction() & MotionEvent.ACTION_MASK) {
+
+                    case MotionEvent.ACTION_DOWN:
+                        //Log.i("ACTION_DOWN", "In ACTION_DOWN");
+                        RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
+
+                        xDelta = x - lParams.leftMargin;
+                        yDelta = y - lParams.topMargin;
+                        //Log.i("ACTION_DOWN", "xDelta: " + xDelta);
+                        //Log.i("ACTION_DOWN", "yDelta: " + yDelta);
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        //Log.i("ACTION_UP", "In ACTION_UP");
+                        Toast.makeText(getApplicationContext(),
+                                "Everybody love Pablo!", Toast.LENGTH_SHORT)
+                                .show();
+
+                        mainLayout = (RelativeLayout) findViewById(R.id.activity_main);
+                        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+                        params.leftMargin = __x;
+                        params.topMargin = __y;
+                        ImageView myImage = new ImageView(getApplicationContext());
+                        myImage.setImageResource(R.mipmap.ic_launcher);
+                        myImage.setOnTouchListener(onTouchListener());
+                        mainLayout.addView(myImage, params);
+
+                        updateCoord = !updateCoord;
+                        break;
+
+                    case MotionEvent.ACTION_MOVE:
+                        //Log.i("ACTION_MOVE", "In ACTION_MOVE");
+                        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
+                        layoutParams.leftMargin = x - xDelta;
+                        layoutParams.topMargin = y - yDelta;
+                        layoutParams.rightMargin = 0;
+                        layoutParams.bottomMargin = 0;
+                        view.setLayoutParams(layoutParams);
+
+                        /**/
+                        break;
+                }
+                mainLayout.invalidate();
+                return true;
+            }
+        };
     }
 }
