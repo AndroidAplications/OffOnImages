@@ -10,7 +10,7 @@ import java.util.Arrays;
  * Created by Pablo Laiz on 04/03/2017.
  */
 
-public class ImageInfo {
+public class ImageInfo implements java.io.Serializable {
 
     private Drawable _Drawable;
     private float _x, _y;
@@ -80,4 +80,15 @@ public class ImageInfo {
         this._layoutParams = _layoutParams;
     }
 
+    @Override
+    public String toString() {
+        return "ImageInfo{" +
+                "_Drawable=" + _Drawable +
+                ", _x=" + _x +
+                ", _y=" + _y +
+                ", _XScale=" + _XScale +
+                ", _YScale=" + _YScale +
+                ", _layoutParams=" + _layoutParams +
+                '}';
+    }
 }

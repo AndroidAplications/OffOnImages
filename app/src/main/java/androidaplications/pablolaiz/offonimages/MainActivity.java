@@ -13,6 +13,10 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -39,7 +43,10 @@ public class MainActivity extends AppCompatActivity {
     private int __x;
     private int __y;
 
+    private String filename = "info.bin";
 
+
+    // http://www.coderzheaven.com/2012/07/25/serialization-android-simple-example/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -188,4 +195,42 @@ public class MainActivity extends AppCompatActivity {
             }
         };
     }
+
+    private boolean SerializeObject(ArrayList<ImageView> _images){
+        // save the object to file
+        FileOutputStream fos = null;
+        ObjectOutputStream out = null;
+        try {
+            fos = new FileOutputStream(filename);
+            out = new ObjectOutputStream(fos);
+            out.writeObject(_images);
+            out.close();
+            return true;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+
+    }
+
+    private ImagesArray DeserializeObject (String _filename){
+        ImagesArray imageViewsListAux = new ImagesArray();
+        // read the object from file
+        // save the object to file
+        FileInputStream fis = null;
+        ObjectInputStream in = null;
+        try {
+            fis = new FileInputStream(_filename);
+            in = new ObjectInputStream(fis);
+            imageViewsListAux = (ImagesArray) in.readObject();
+            in.close();
+        } catch (Exception ex) {
+
+            ex.printStackTrace();
+            return null;
+        }
+        System.out.println(imageViewsListAux);
+        return imageViewsListAux;
+    }
+
 }
